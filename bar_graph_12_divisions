@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+from time import sleep 
+import numpy as np
+import scipy.io.wavfile as wav
+from scipy.fftpack import fft, fftfreq, fftshift
+
+def max_in(fmin , fmax, data) :
+	d = { }
+	for i in np.arange(fmin,fmax+1,20) :
+		d[i] = data[i]
+	v = list(d.values())
+	max_value = max(v)
+	return 	max_value
+								
+rate ,data = wav.read('g_tdd_120_01.wav')    #reading the data using scipy.io.wavfile module
+
+nframe = data.shape[0] 		#no of frames in the audio file
+T = 1/rate	        	#time diff between two samples
+dt = 0.05       		#sample timewidth for window of shortFFT
+nsamp = int((dt)/T)     	#no of sample taken in one window
+ymax = max(fft(data))
+
+x = np.arange(0,20020,20)
+a = np.split(x,[2,5,9,16,28,47,79,131,225,374,613])
+for i in np.arange(0,nframe,nsamp) :	#loop for drawing graph of each window
+	d = data[i:(i+nsamp)]	
+	f = fftfreq(nsamp,T)     #creates discrete freqranging from -20,000 to 20,000
+	Y = fft(d)       #creates fft with 40000 values
+	Y = fftshift(Y)
+	f = fftshift(f)
+	Y = np.abs(Y)     #from data it is removing imaginary part of the data
+	sound_data = dict(zip(f,Y))
+	b = [] 
+	glob_max_freq = max_in(0,20000,sound_data)
+	for j in np.arange(12) :
+		lo = len(a[j])
+		max_str = max_in(min(a[j]), max(a[j]), sound_data)
+		b.append(max_str)
+	x = np.arange(12)
+	plt.clf()
+	plt.hold(True)
+	ax = plt.gca()
+	ax.set_ylim([0,glob_max_freq])
+	plt.ylim(0,glob_max_freq)
+	plt.bar(x, b) 
+	plt.pause(0.01)
+	plt.hold(False)
+	continue

@@ -18,12 +18,11 @@ nframe = data.shape[0] 		#no of frames in the audio file
 T = 1/rate	        	#time diff between two samples
 dt = 0.05       		#sample timewidth for window of shortFFT
 nsamp = int((dt)/T)     	#no of sample taken in one window
-ymax = max(fft(data))
 
 x = np.arange(0,20020,20)
 a = np.split(x,[2,5,9,16,28,47,79,131,225,374,613])
 Y = fft(data)
-glob_max = max(Y) 
+glob_max = max(Y)    #for finding global maxima in the entire data
 for i in np.arange(0,nframe,nsamp) :	#loop for drawing graph of each window
 	d = data[i:(i+nsamp)]	
 	f = fftfreq(nsamp,T)     #creates discrete freqranging from -20,000 to 20,000
@@ -32,11 +31,11 @@ for i in np.arange(0,nframe,nsamp) :	#loop for drawing graph of each window
 	f = fftshift(f)
 	Y = np.abs(Y)     #from data it is removing imaginary part of the data
 	sound_data = dict(zip(f,Y))
-	b = [] 
+	b = []    #creates empty list
 	for j in np.arange(12) :
 		lo = len(a[j])
 		max_str = max_in(min(a[j]), max(a[j]), sound_data)
-		b.append(max_str)
+		b.append(max_str)    #appends the list to max of the band
 	x = np.arange(12)
 	plt.clf()
 	plt.hold(True)
